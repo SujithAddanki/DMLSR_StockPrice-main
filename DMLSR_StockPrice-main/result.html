@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Stock Price Predictor</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Stock Price Predictor</h1>
+      <form action="/predict" method="post">
+        <label for="ticker">Enter Stock Ticker or Company Name:</label>
+        <input type="text" id="ticker" name="ticker" required />
+        <button type="submit">Predict</button>
+      </form>
+      <div class="results">
+        <h2>Prediction Results</h2>
+        <img src="data:image/png;base64,{{ plot_url }}" alt="Prediction Plot" />
+        <p>Mean Squared Error: {{ mse }}</p>
+        <p>Predicted Price: {{ prediction }}</p>
+      </div>
+    </div>
+    <script>
+      $(function () {
+        $("#ticker").autocomplete({
+          source: function (request, response) {
+            $.ajax({
+              url: "/autocomplete",
+              data: { query: request.term },
+              success: function (data) {
+                response(data);
+              },
+            });
+          },
+          select: function (event, ui) {
+            const ticker = ui.item.label.match(/\(([^)]+)\)/)[1];
+            $("#ticker").val(ticker);
+            return false;
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
